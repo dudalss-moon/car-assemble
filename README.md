@@ -39,3 +39,36 @@
 | Truck + WIA 엔진 | WIA는 Truck용 엔진을 만들지 않습니다. |
 | Truck + MANDO 제동장치 | MANDO는 Truck용 제동장치를 만들지 않습니다. |
 | BOSCH 제동장치 + 타사 조향장치 | BOSCH 제동장치는 BOSCH 조향장치와만 호환됩니다. |
+
+---
+
+## 프로젝트 구조
+
+리팩토링을 통해 단일 클래스(`Assemble.java`)에 혼재되어 있던 책임을 아래와 같이 분리하였습니다.
+
+```
+src/main/java/
+├── Assemble.java          — 단계 흐름 제어
+├── view/
+│   └── ConsoleView.java   — 메뉴 출력 및 결과 표시
+├── handler/
+│   └── InputHandler.java  — 입력 파싱 / 범위 검증 / exit 처리
+├── domain/
+│   ├── Car.java           — 조립 상태 보관
+│   └── CarValidator.java  — 부품 조합 유효성 검사
+└── enums/
+    ├── CarType.java
+    ├── EngineType.java
+    ├── BrakeType.java
+    └── SteeringType.java
+```
+
+## 리팩토링 이력
+
+| Phase | 내용 |
+|-------|------|
+| Phase 1 | 현재 동작을 테스트 코드로 고정 (`AssembleValidationTest`) |
+| Phase 2 | int 상수 → Enum 타입 전환 (`CarType`, `EngineType`, `BrakeType`, `SteeringType`) |
+| Phase 3 | `stack[]` 배열 → `Car` 도메인 객체 교체 |
+| Phase 4 | 중복 유효성 검사 로직 → `CarValidator` 통합 |
+| Phase 5 | 메뉴·입력 코드 → `ConsoleView` / `InputHandler` 분리 |
