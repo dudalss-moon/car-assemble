@@ -1,7 +1,8 @@
 import domain.Car;
-import enums.BrakeType;
+import domain.CarValidator;
 import enums.CarType;
 import enums.EngineType;
+import enums.BrakeType;
 import enums.SteeringType;
 
 import java.util.Scanner;
@@ -16,6 +17,7 @@ public class Assemble {
     private static final int Run_Test         = 4;
 
     static Car car = new Car();
+    private static final CarValidator validator = new CarValidator();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -208,17 +210,9 @@ public class Assemble {
         System.out.printf("%s 조향장치를 선택하셨습니다.\n", car.getSteeringType().getDisplayName());
     }
 
-    static boolean isValidCheck() {
-        if (car.getCarType() == CarType.SEDAN  && car.getBrakeType() == BrakeType.CONTINENTAL) return false;
-        if (car.getCarType() == CarType.SUV    && car.getEngineType() == EngineType.TOYOTA)    return false;
-        if (car.getCarType() == CarType.TRUCK  && car.getEngineType() == EngineType.WIA)       return false;
-        if (car.getCarType() == CarType.TRUCK  && car.getBrakeType() == BrakeType.MANDO)       return false;
-        if (car.getBrakeType() == BrakeType.BOSCH && car.getSteeringType() != SteeringType.BOSCH) return false;
-        return true;
-    }
-
     private static void runProducedCar() {
-        if (!isValidCheck()) {
+        String violation = validator.validate(car);
+        if (violation != null) {
             System.out.println("자동차가 동작되지 않습니다");
             return;
         }
@@ -236,24 +230,13 @@ public class Assemble {
     }
 
     private static void testProducedCar() {
-        if (car.getCarType() == CarType.SEDAN && car.getBrakeType() == BrakeType.CONTINENTAL) {
-            fail("Sedan에는 Continental제동장치 사용 불가");
-        } else if (car.getCarType() == CarType.SUV && car.getEngineType() == EngineType.TOYOTA) {
-            fail("SUV에는 TOYOTA엔진 사용 불가");
-        } else if (car.getCarType() == CarType.TRUCK && car.getEngineType() == EngineType.WIA) {
-            fail("Truck에는 WIA엔진 사용 불가");
-        } else if (car.getCarType() == CarType.TRUCK && car.getBrakeType() == BrakeType.MANDO) {
-            fail("Truck에는 Mando제동장치 사용 불가");
-        } else if (car.getBrakeType() == BrakeType.BOSCH && car.getSteeringType() != SteeringType.BOSCH) {
-            fail("Bosch제동장치에는 Bosch조향장치 이외 사용 불가");
+        String violation = validator.validate(car);
+        if (violation != null) {
+            System.out.println("자동차 부품 조합 테스트 결과 : FAIL");
+            System.out.println(violation);
         } else {
             System.out.println("자동차 부품 조합 테스트 결과 : PASS");
         }
-    }
-
-    private static void fail(String msg) {
-        System.out.println("자동차 부품 조합 테스트 결과 : FAIL");
-        System.out.println(msg);
     }
 
     private static void delay(int ms) {
